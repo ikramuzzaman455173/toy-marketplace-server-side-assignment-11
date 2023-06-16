@@ -42,10 +42,19 @@ async function run() {
       } else if (sort === 'desc') {
         sortQuery = { price: -1 };
       }
+      const limit = parseInt(req.query.limit) || 10
+      const page = parseInt(req.query.page) || 1
+      const skip = (page - 1) * limit
 
-      const result = await toysRusCollection.find({}).sort(sortQuery).limit(20).toArray();
+      const result = await toysRusCollection.find({}).sort(sortQuery).limit(limit).skip(skip).toArray();
         res.send(result)
     });
+
+    app.get('/totalToys', async (req, res) => {
+      const totalCount = await toysRusCollection.countDocuments({});
+      // console.log(`Total Count : ${totalCount}`);
+      return res.status(200).send({ count: totalCount })
+    })
 
 
     // user email query by get allToys
@@ -170,3 +179,4 @@ run().catch(console.dir);
 app.listen(port, () => {
   console.log(`Toy Marketplace Server Is Running On Port:http://localhost:${port}`);
 })
+
